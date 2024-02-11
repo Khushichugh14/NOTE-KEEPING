@@ -1,0 +1,36 @@
+<div class="container note-form-container">
+  <form class="form-group" [formGroup]="registerForm" (submit)="submit()">
+    <div class="container">
+      <div class="center">
+          <h1>Register</h1>
+          <form method="POST" action="">
+              <div class="txt_field">
+                  <input type="text" name="name" required formControlName="userName">
+                  <span></span>
+                  <label>Username</label>
+              </div>
+              <div class="txt_field">
+                  <input type="email" name="email" required formControlName="email">
+                  <span></span>
+                  <label>Email</label>
+              </div>
+              <div class="txt_field">
+                  <input type="password" name="password" required formControlName ="password">
+                  <span></span>
+                  <label>Password</label>
+              </div>
+              <div class="txt_field">
+                  <input type="password" name="cpassword" required formControlName="password">
+                  <span></span>
+                  <label>Confirm Password</label>
+              </div>
+              <input name="submit" type="submit" value="Sign Up">
+              <div class="signup_link">
+                  Have an Account ? <a href="#">Login Here</a>
+              </div>
+          </form>
+      </div>
+  </div>
+      </form>
+</div>
+
