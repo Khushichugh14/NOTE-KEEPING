@@ -5,8 +5,12 @@ CREATE TABLE Note.users (
     userID INT PRIMARY KEY IDENTITY(1,1),
     userName VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    password VARBINARY(MAX) NOT NULL
+    password VARBINARY(MAX) ,
+	token VARCHAR(MAX),
+	time_to_expire  DATETIME
 );
+
+--DROP TABLE Note.users
 
 INSERT INTO Note.users (userName, email, password)
 VALUES
@@ -39,11 +43,11 @@ noteId INT PRIMARY KEY IDENTITY(1,1),
 title VARCHAR(100),
 descrpition NVARCHAR(MAX) ,
 created_at DATETIME DEFAULT GETDATE(),
-CreatedByUser INT NOT NULL,
+CreatedByUser INT FOREIGN KEY (CreatedByUser) REFERENCES Note.users(userID),
 edited_at DATETIME DEFAULT GETDATE(),
-CONSTRAINT FK_createdByUser FOREIGN KEY (createdByUser) REFERENCES Note.users(userID),
-active_yn INT DEFAULT 1,
-)
+active_yn INT DEFAULT 1
+);
+
 DROP TABLE Note.notes
 
 INSERT INTO Note.notes (title, descrpition, CreatedByUser, active_yn)
@@ -78,7 +82,7 @@ SELECT * FROM Note.notes
 * Author      : Khushi Chugh
 * Date        :  28/01/2024
 * Description     : Script to Add User
-* Test Code      : EXEC  Note.sp_AddUser  'Mohanla' , 'Mohanla1234@gmail.com', 'Mohan@12345'
+* Test Code      : EXEC  Note.sp_AddUser  'Harsh' , 'Harsh@gamil.com' , '12345'
 **********/
 
 CREATE or ALTER PROCEDURE [Note].[sp_AddUser]
@@ -99,21 +103,25 @@ END;
 * Author      : Khushi Chugh
 * Date        :  28/01/2024
 * Description     : Script to Login User
-* Test Code      : EXEC  Note.sp_LoginUser  'ava.parker@example.com' , 0x243261243130243947644e46536b4741342e4761615730537a385570434d4275793845784453375169506557693274374768
+* Test Code      : EXEC  Note.sp_LoginUser   'Mohanla' , 'Mohan@12345'
 **********/
 CREATE OR ALTER   PROCEDURE Note.sp_LoginUser 
-@email VARCHAR(30) ,
-@password VARCHAR(30)
+@userName VARCHAR(30) ,
+@password NVARCHAR(MAX)
 AS 
 BEGIN
 	DECLARE @hashedpwd VARBINARY(MAX) =HASHBYTES('SHA2_256', @password)
-	DECLARE @count int=0
-	select @count=count(1) from Note.users where email=@email and password=@hashedpwd
+	DECLARE @count int
+	select @count=count(1) from Note.users where userName=@userName and [password]=@hashedpwd
 	IF @count=1
 	BEGIN
-		select * ,1 as validYN 
-		FROM Note.users where email=@email
-	END
+		update Note.users
+		SET token = NEWID(),
+			time_to_expire = DATEADD(mi ,30, GETDATE())
+
+		select *,1 as validYN
+		FROM Note.users where userName=@userName and  [password] =@hashedpwd
+	END 
 	ELSE
 	BEGIN
 		select 0 as validYN
@@ -124,23 +132,31 @@ GO
 
 
 /**********
-* Store Procedure : Note.sp_UpdateUser
+* Store Procedure : Note.sp_ValidateToken
 * Author      : Khushi Chugh
 * Date        :  28/01/2024
-* Description     : Script to Update  User
-* Test Code      : EXEC Note.sp_UpdateUser 
+* Description     : Script to Validate Token
+* Test Code      : EXEC Note.sp_ValidateToken   'A128C7E5-29EA-4790-9F14-726017406AFD' , 4
 **********/
-CREATE OR ALTER PROCEDURE [Note].[sp_UpdateUser]
-    @userID INT,
-    @userName VARCHAR(50),
-    @email VARCHAR(100),
-    @password VARCHAR(255)
+CREATE OR ALTER PROCEDURE Note.sp_ValidateToken 
+@token VARCHAR(MAX),
+@userID INT
 AS
 BEGIN
-    UPDATE Note.users
-    SET userName = @userName, email = @email, password = HASHBYTES('SHA2_256', @password)
-    WHERE userID = @userID
-END;
+	DECLARE @count INT 
+	select @count=count(1) from Note.users where userID=@userID and token=@token and time_to_expire > GETDATE()
+	IF @count = 1
+	BEGIN
+		select 1 as ValidYN
+	END
+	ELSE
+	BEGIN
+		select 0 as ValidYN
+	END
+END
+
+
+
 
 
 
@@ -158,11 +174,13 @@ CREATE OR ALTER PROCEDURE [Note].[sp_AddNote]
 	@CreatedByUser INT
 AS
 BEGIN
-    INSERT INTO Note.notes (title, descrpition , CreatedByUser)
-    VALUES (@title, @descrpition , @CreatedByUser);
-END;
+    INSERT INTO Note.notes (title, descrpition, CreatedByUser)
+    VALUES (@title, @descrpition, @CreatedByUser);
+END
+GO
 
-SELECT * FROM Note.users
+SELECT * FROM Note.notes
+
 
 
 /**********
