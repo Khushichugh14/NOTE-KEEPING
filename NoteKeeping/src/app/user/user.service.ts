@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { APP_CONSTANTS } from '../shared/constants/app.constant';
 
 
 @Injectable({
@@ -10,6 +11,10 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
   registerUser(body: any): Observable<any> {
-    return this.http.post<any>('http://localhost:8080/api/register' , body);
+    return this.http.post<any>(APP_CONSTANTS.BACKEND_URL+'register' , body);
+  }
+
+  login(body:any):Observable<any>{
+    return this.http.post(APP_CONSTANTS.BACKEND_URL+'login' , body)
   }
 }

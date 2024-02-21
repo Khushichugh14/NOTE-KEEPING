@@ -1,0 +1,76 @@
+/* Styles for Navigation Bar */
+.navbar {
+  background-color: #343a40;
+  /* height: 20vh; */
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+  color: #ffffff;
+  margin-left: 10px;
+  font-size: 1rem;
+}
+
+/* Main Content Styles */
+.container {
+  max-width: 100%;
+}
+.container h1{
+  margin-left: 20px;
+}
+.card {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  /* border: none; Remove the border */
+}
+
+.card-body {
+  /* padding: 20px; */
+  width: 100%;
+}
+
+form {
+  margin-top: 20px;
+}
+
+label {
+  font-weight: bold;
+  display: block; /* Ensure labels are on their own line */
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  /* border: 1px solid #ced4da; Add a border for better visibility */
+}
+
+button {
+  background-color: #007bff;
+  color: #ffffff;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  height: 40px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Optional: Add some responsive styles */
+@media (max-width: 576px) {
+  .navbar-collapse {
+    text-align: center;
+  }
+
+  .navbar-nav {
+    margin-top: 10px;
+  }
+}

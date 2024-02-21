@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { UserService } from '../user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-register',
@@ -10,7 +11,7 @@ import { UserService } from '../user.service';
 export class UserRegisterComponent {
   registerForm!: FormGroup
 
-  constructor(private userService: UserService){}
+  constructor(private userService: UserService , private router: Router){}
 
   createForm():void{
     this.registerForm = new FormGroup({
@@ -27,6 +28,9 @@ export class UserRegisterComponent {
   submit(): void {
     this.userService.registerUser(this.registerForm.value).subscribe((value)=>{
       console.log("Registered!!!")
+      console.log(value)
+      // this.router.navigate(['/home'])
+
     })
   }
 }

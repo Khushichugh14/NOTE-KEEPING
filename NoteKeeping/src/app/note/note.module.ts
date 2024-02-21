@@ -1,23 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserRegisterComponent } from './user-register/user-register.component';
+import { CreateNoteComponent } from './create-note/create-note.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { UserLoginComponent } from './user-login/user-login.component';
 
 
 
 @NgModule({
   declarations: [
-    UserRegisterComponent,
-    UserLoginComponent
+    CreateNoteComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule
-
   ]
 })
-export class UserModule { }
+export class NoteModule { }

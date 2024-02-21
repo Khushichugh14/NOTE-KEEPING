@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+  <div class="container-fluid ">
+    <h1 class="text-white">Keep Notes</h1>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+      </ul>
+      <form class="d-flex flex-row">
+        <input class="form-control me-2" id="searchTxt" type="search" placeholder="Search" aria-label="Search" />
+        <button class="btn btn-outline-success w-50  " type="submit">
+          Search
+        </button>
+      </form>
+    </div>
+  </div>
+</nav>
+<!-- nav bar end here -->
+
+<div class="container ">
+  <h1>Welcome To keep Notes</h1>
+  <div class="card mt-5">
+    <div class="card-body">
+      <form class="form-group" (submit)="submit()" [formGroup]="createnote">
+        <label for="title">Title:</label>
+        <input type="text" id="title" required  formControlName="title" class="form-control">
+
+        <label for="descrpition">Descrpition:</label>
+        <textarea id="descrpition" required formControlName="descrpition"></textarea>
+
+        <button type="submit">Create Note</button>
+      </form>
+    </div>
+  </div>
+  </div>
+
+
