@@ -9,7 +9,7 @@ public class NoteRepository {
 
     @Autowired
     JdbcTemplate jdbcTemplate;
-    public int addNote(String title,String descrpition,int  CreatedByUser){
+    public int addNote(String title,String descrpition,Integer  CreatedByUser){
         return jdbcTemplate.update("EXEC Note.sp_AddNote  ?,?,?",title,descrpition,CreatedByUser);
     }
 }

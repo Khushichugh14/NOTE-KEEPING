@@ -14,11 +14,12 @@ public class UserRepository {
         return jdbcTemplate.update("EXEC  Note.sp_AddUser ?,?,?",userName,email,password);
     }
 
-    public Map<String , Object> loginUser(String email , String password){
-        return jdbcTemplate.queryForMap("EXEC  Note.sp_LoginUser ?,?",email , password);
+    public Map<String , Object> loginUser(String userName , String password){
+        return jdbcTemplate.queryForMap("EXEC  Note.sp_LoginUser ?,?",userName , password);
     }
 
-    public int updateUser( Integer userId, String userName, String email,String password){
-        return jdbcTemplate.update(" EXEC Note.sp_UpdateUser ?,?,?,?",userId,userName,email ,password);
+    public Map<String , Object> validateToken(Integer userID , String token){
+        return jdbcTemplate.queryForMap(" EXEC Note.sp_ValidateToken ?,?",userID,token);
     }
+
 }

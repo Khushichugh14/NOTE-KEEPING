@@ -1,14 +1,16 @@
 package com.sgt.notekeeping.web;
 import com.sgt.notekeeping.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200" , allowCredentials = "true")
 public class UserResource {
     @Autowired
     UserService userService;
@@ -22,8 +24,8 @@ public class UserResource {
         return userService.loginUser(body);
     }
 
-    @PutMapping("/user/{userid}")
-    public ResponseEntity<String> updateUser(@RequestBody Map<String,Object>body,@PathVariable Integer userid){
-        return userService.updateUser(body,userid);
+    @GetMapping("/students")
+    public List<String> getStudentsNames(HttpServletRequest httpServletRequest){
+        return  userService.getStudentsNames(httpServletRequest);
     }
 }
