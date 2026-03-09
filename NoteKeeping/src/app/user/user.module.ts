@@ -7,17 +7,21 @@ import { UserLoginComponent } from './user-login/user-login.component';
 
 
 
+import { RouterModule } from '@angular/router';
+import { ProfileComponent } from './profile/profile.component';
+
 @NgModule({
   declarations: [
     UserRegisterComponent,
-    UserLoginComponent
+    UserLoginComponent,
+    ProfileComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
-
+    HttpClientModule,
+    RouterModule
   ]
 })
 export class UserModule { }

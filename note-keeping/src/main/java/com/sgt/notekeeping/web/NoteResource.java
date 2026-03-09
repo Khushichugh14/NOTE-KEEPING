@@ -16,8 +16,24 @@ public class NoteResource {
 
     @Autowired
     NoteService noteService;
+
+    @GetMapping("/note")
+    public ResponseEntity<java.util.List<Map<String, Object>>> getAllNotes() {
+        return noteService.getAllNotes();
+    }
+
+    @DeleteMapping("/note/{noteId}")
+    public ResponseEntity<Map<String, String>> deleteNote(@PathVariable Integer noteId) {
+        return noteService.deleteNote(noteId);
+    }
+
+    @PutMapping("/note/{noteId}")
+    public ResponseEntity<Map<String, String>> updateNote(@PathVariable Integer noteId, @RequestBody Map<String, Object> body) {
+        return noteService.updateNote(noteId, body);
+    }
+
     @PostMapping("/note")
-    public  ResponseEntity<Map<String, String>>  addNote(@RequestBody Map<String,Object>body , HttpServletRequest httpServletRequest){
+    public ResponseEntity<Map<String, String>> addNote(@RequestBody Map<String, Object> body, HttpServletRequest httpServletRequest) {
         return noteService.addNote(body , httpServletRequest);
     }
 

@@ -1,0 +1,87 @@
+<div class="profile-container">
+    <nav class="profile-nav">
+        <div class="nav-left">
+            <div class="nav-logo" routerLink="/note">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Notes</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="logout-btn" (click)="logout()" title="Logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="profile-content">
+        <div class="profile-wrapper animate-fade-in">
+
+            <!-- Stats Row -->
+            <div class="stats-grid">
+                <div class="glass-card stat-card">
+                    <i class="fa-solid fa-note-sticky"></i>
+                    <div class="stat-info">
+                        <span class="stat-value">{{ user?.totalNotes ?? '—' }}</span>
+                        <span class="stat-label">Total Notes</span>
+                    </div>
+                </div>
+                <div class="glass-card stat-card">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <div class="stat-info">
+                        <span class="stat-value" style="font-size:1.25rem; color: var(--primary);">Active</span>
+                        <span class="stat-label">Account Status</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="glass-card profile-card">
+
+                <!-- Success / Error Message -->
+                <div *ngIf="successMessage"
+                    style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10b981; padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-circle-check"></i> {{ successMessage }}
+                </div>
+                <div *ngIf="errorMessage"
+                    style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage }}
+                </div>
+
+                <div class="profile-header">
+                    <div class="avatar-placeholder">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h2>{{ user?.userName || 'Loading...' }}</h2>
+                        <p>{{ user?.email || '' }}</p>
+                    </div>
+                </div>
+
+                <form [formGroup]="profileForm" (submit)="updateProfile()" class="profile-form">
+                    <div class="input-group">
+                        <label class="input-label">Email Address</label>
+                        <input type="email" formControlName="email" placeholder="Update your email">
+                    </div>
+
+                    <div class="password-row">
+                        <div class="input-group">
+                            <label class="input-label">New Password</label>
+                            <input type="password" formControlName="password" placeholder="Min 6 characters">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Confirm Password</label>
+                            <input type="password" formControlName="confirmPassword" placeholder="Repeat new password">
+                        </div>
+                    </div>
+
+                    <button type="submit" [disabled]="profileForm.invalid || saving" class="submit-btn">
+                        <i class="fa-solid" [class.fa-circle-notch]="saving" [class.fa-spin]="saving"
+                            [class.fa-floppy-disk]="!saving"></i>
+                        <span>{{ saving ? 'Saving...' : 'Update Profile' }}</span>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+</div>

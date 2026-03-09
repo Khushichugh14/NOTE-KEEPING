@@ -22,4 +22,11 @@ public class UserRepository {
         return jdbcTemplate.queryForMap(" EXEC Note.sp_ValidateToken ?,?",userID,token);
     }
 
+    public Map<String, Object> getUserProfile(Integer userId) {
+        return jdbcTemplate.queryForMap("EXEC Note.sp_GetUserProfile ?", userId);
+    }
+
+    public int updateUserProfile(Integer userId, String email, String password) {
+        return jdbcTemplate.update("EXEC Note.sp_UpdateUserProfile ?,?,?", userId, email, password);
+    }
 }

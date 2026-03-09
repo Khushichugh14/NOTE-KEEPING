@@ -42,11 +42,14 @@ CREATE TABLE Note.notes
 noteId INT PRIMARY KEY IDENTITY(1,1),
 title VARCHAR(100),
 descrpition NVARCHAR(MAX) ,
+category VARCHAR(50) DEFAULT 'Personal',
+image_url NVARCHAR(MAX) NULL,
 created_at DATETIME DEFAULT GETDATE(),
 CreatedByUser INT FOREIGN KEY (CreatedByUser) REFERENCES Note.users(userID),
 edited_at DATETIME DEFAULT GETDATE(),
 active_yn INT DEFAULT 1
 );
+GO
 
 DROP TABLE Note.notes
 
@@ -105,27 +108,32 @@ END;
 * Description     : Script to Login User
 * Test Code      : EXEC  Note.sp_LoginUser   'Mohanla' , 'Mohan@12345'
 **********/
-CREATE OR ALTER   PROCEDURE Note.sp_LoginUser 
+CREATE OR ALTER PROCEDURE Note.sp_LoginUser 
 @userName VARCHAR(30) ,
 @password NVARCHAR(MAX)
 AS 
 BEGIN
-	DECLARE @hashedpwd VARBINARY(MAX) =HASHBYTES('SHA2_256', @password)
-	DECLARE @count int
-	select @count=count(1) from Note.users where userName=@userName and [password]=@hashedpwd
-	IF @count=1
-	BEGIN
-		update Note.users
-		SET token = NEWID(),
-			time_to_expire = DATEADD(mi ,30, GETDATE())
+    SET NOCOUNT ON;
+    DECLARE @hashedpwd VARBINARY(MAX) = HASHBYTES('SHA2_256', @password)
+    DECLARE @count INT
+    
+    SELECT @count = count(1) FROM Note.users WHERE userName = @userName AND [password] = @hashedpwd
+    
+    IF @count > 0
+    BEGIN
+        UPDATE Note.users
+        SET token = NEWID(),
+            time_to_expire = DATEADD(mi, 30, GETDATE())
+        WHERE userName = @userName AND [password] = @hashedpwd
 
-		select *,1 as validYN
-		FROM Note.users where userName=@userName and  [password] =@hashedpwd
-	END 
-	ELSE
-	BEGIN
-		select 0 as validYN
-	END
+        SELECT *, 1 AS validYN
+        FROM Note.users 
+        WHERE userName = @userName AND [password] = @hashedpwd
+    END 
+    ELSE
+    BEGIN
+        SELECT 0 AS validYN
+    END
 END
 GO
 
@@ -171,11 +179,13 @@ END
 CREATE OR ALTER PROCEDURE [Note].[sp_AddNote]
     @title VARCHAR(255),
     @descrpition NVARCHAR(MAX),
-	@CreatedByUser INT
+	@CreatedByUser INT,
+    @category VARCHAR(50) = 'Personal',
+    @image_url NVARCHAR(MAX) = NULL
 AS
 BEGIN
-    INSERT INTO Note.notes (title, descrpition, CreatedByUser)
-    VALUES (@title, @descrpition, @CreatedByUser);
+    INSERT INTO Note.notes (title, descrpition, CreatedByUser, category, image_url)
+    VALUES (@title, @descrpition, @CreatedByUser, @category, @image_url);
 END
 GO
 
@@ -228,6 +238,8 @@ BEGIN
         n.noteId,
         n.title,
         n.descrpition AS description,
+        n.category,
+        n.image_url,
         n.created_at AS createdDate,
         n.edited_at AS lastModifiedDate,
         u.userID AS createdByUserID,
@@ -250,10 +262,69 @@ END;
 CREATE OR ALTER  PROCEDURE [Note].[sp_UpdateNote]
     @noteID INT,
     @title VARCHAR(255),
-    @descrpition NVARCHAR(MAX)
+    @descrpition NVARCHAR(MAX),
+    @category VARCHAR(50) = 'Personal',
+    @image_url NVARCHAR(MAX) = NULL
 AS
 BEGIN
     UPDATE Note.notes
-    SET title = @title, descrpition = @descrpition
+    SET title = @title, descrpition = @descrpition, category = @category, image_url = @image_url, edited_at = GETDATE()
     WHERE noteID = @noteID;
 END;
+GO
+
+/**********
+ * Procedure Name : Note.sp_DeleteNote
+ * Description     : Script to Delete Note
+ * Test Code      : EXEC Note.sp_DeleteNote 1
+ **********/
+CREATE OR ALTER PROCEDURE Note.sp_DeleteNote 
+@noteId INT
+AS 
+BEGIN
+    DELETE FROM Note.notes WHERE noteId = @noteId
+END
+GO
+
+/**********
+* Store Procedure : Note.sp_GetUserProfile
+* Description     : Fetch user details and note count
+**********/
+CREATE OR ALTER PROCEDURE Note.sp_GetUserProfile
+@userID INT
+AS
+BEGIN
+    SELECT 
+        userID, userName, email,
+        (SELECT COUNT(*) FROM Note.notes WHERE CreatedByUser = @userID) as totalNotes
+    FROM Note.users
+    WHERE userID = @userID
+END
+GO
+
+/**********
+* Store Procedure : Note.sp_UpdateUserProfile
+* Description     : Update email and password
+**********/
+CREATE OR ALTER PROCEDURE Note.sp_UpdateUserProfile
+@userID INT,
+@email VARCHAR(100),
+@password NVARCHAR(100) = NULL
+AS
+BEGIN
+    IF @password IS NOT NULL AND @password <> ''
+    BEGIN
+        SET NOCOUNT ON;
+        UPDATE Note.users 
+        SET email = @email, [password] = HASHBYTES('SHA2_256', @password)
+        WHERE userID = @userID
+    END
+    ELSE
+    BEGIN
+        SET NOCOUNT ON;
+        UPDATE Note.users 
+        SET email = @email
+        WHERE userID = @userID
+    END
+END
+GO

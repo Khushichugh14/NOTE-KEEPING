@@ -1,5 +1,6 @@
 package com.sgt.notekeeping.service;
 
+import com.sgt.notekeeping.config.JwtUtil;
 import com.sgt.notekeeping.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,9 @@ import java.util.Map;
 public class UserService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    JwtUtil jwtUtil;
     public ResponseEntity<Map<String, String>> insertUser(Map<String,Object> body){
         String userName = (String) body.get("userName");
         String email = (String) body.get("email");
@@ -32,7 +36,16 @@ public class UserService {
     public Map<String ,Object> loginUser(Map<String,Object> body){
         String userName = (String)body.get("userName");
         String password = (String)body.get("password");
-        return userRepository.loginUser(userName,password);
+        Map<String, Object> result = userRepository.loginUser(userName,password);
+        
+        Integer validYn = (Integer) result.get("validYN");
+        if (validYn != null && validYn == 1) {
+            Integer userId = (Integer) result.get("userID");
+            String token = jwtUtil.generateToken(userName, userId);
+            result.put("token", token); // Replace DB token with JWT
+            result.put("jwtToken", token);
+        }
+        return result;
     }
 
     public List<String> getStudentsNames(HttpServletRequest httpServletRequest){
@@ -41,27 +54,54 @@ public class UserService {
         return  List.of("Kinjala" , "Jiya" , "Khushi", "Nidhi" , "Varsha" , "Muskan");
     }
 
-    public boolean isTokenValidate(HttpServletRequest httpServletRequest){
-//        System.out.println(httpServletRequest);
-        //ertracting Cookies
+    public boolean isTokenValidate(HttpServletRequest httpServletRequest) {
         Cookie[] cookies = httpServletRequest.getCookies();
+        if (cookies == null) return false;
 
-        //returning hashmap
         Map<String, String> cookieMap = getCookiesAsHashMap(cookies);
-        Map<String, Object> result = userRepository.validateToken(Integer.parseInt(cookieMap.get("userID")),cookieMap.get("token"));
-        Integer validYn = (Integer) result.get("ValidYN");
-        return validYn == 1;
-    }
+        try {
+            String userId = cookieMap.get("userID");
+            if (userId == null) userId = cookieMap.get("CreatedByUser");
+            if (userId == null) return false;
 
-    private  Map<String, String> getCookiesAsHashMap(Cookie[] cookies){
-        Map<String,String> cookieMap = new HashMap<>();
-        for(Cookie c : cookies)
-        {
-            cookieMap.put(c.getName() , c.getValue());
-            System.out.println(c.getName()+"-"+c.getValue());
+            Map<String, Object> result = userRepository.validateToken(Integer.parseInt(userId), cookieMap.get("token"));
+            Integer validYn = (Integer) result.get("ValidYN");
+            return validYn != null && validYn == 1;
+        } catch (Exception e) {
+            System.err.println("Token validation error: " + e.getMessage());
+            return false;
         }
-        return  cookieMap;
     }
 
+    private Map<String, String> getCookiesAsHashMap(Cookie[] cookies) {
+        Map<String, String> cookieMap = new HashMap<>();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                cookieMap.put(c.getName(), c.getValue());
+            }
+        }
+        return cookieMap;
+    }
 
+    public ResponseEntity<Map<String, Object>> getUserProfile(Integer userId) {
+        try {
+            return ResponseEntity.ok(userRepository.getUserProfile(userId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    public ResponseEntity<Map<String, String>> updateUserProfile(Integer userId, Map<String, Object> body) {
+        try {
+            String email = (String) body.get("email");
+            String password = (String) body.get("password");
+            int rows = userRepository.updateUserProfile(userId, email, password);
+            if (rows > 0) {
+                return ResponseEntity.ok(Map.of("status", "Profile updated successfully!"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", e.getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 }

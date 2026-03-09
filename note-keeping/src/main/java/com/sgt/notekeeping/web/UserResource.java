@@ -28,4 +28,14 @@ public class UserResource {
     public List<String> getStudentsNames(HttpServletRequest httpServletRequest){
         return  userService.getStudentsNames(httpServletRequest);
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Map<String, Object>> getUserProfile(@PathVariable Integer userId) {
+        return userService.getUserProfile(userId);
+    }
+
+    @PutMapping("/user/{userId}")
+    public ResponseEntity<Map<String, String>> updateUserProfile(@PathVariable Integer userId, @RequestBody Map<String, Object> body) {
+        return userService.updateUserProfile(userId, body);
+    }
 }
